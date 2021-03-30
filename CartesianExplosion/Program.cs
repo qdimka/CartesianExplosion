@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Linq;
+using BenchmarkDotNet.Running;
+using Microsoft.EntityFrameworkCore;
 
 namespace CartesianExplosion
 {
@@ -6,7 +9,7 @@ namespace CartesianExplosion
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            _ = BenchmarkRunner.Run<AsSplitBenchmark>();
         }
     }
 }

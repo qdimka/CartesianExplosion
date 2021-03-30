@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using BenchmarkDotNet.Attributes;
 using CartesianExplosion.Model;
@@ -13,9 +14,12 @@ namespace CartesianExplosion
         
         [Params(2,5,10)]
         public int ItemsInCollection { get; set; }
+
+        [Params(false,true)]
+        public bool SplitQueries { get; set; }
         
-        [Params(1,3,5)]
-        public int Limit { get; set; }
+        [Params(0,1,2,3,4,5,6)]
+        public int LoadRefs { get; set; }
 
         [GlobalSetup]
         public void Setup()
@@ -32,152 +36,44 @@ namespace CartesianExplosion
         }
         
         [Benchmark]
-        public List<MainEntity> Refs0_Single()
+        public List<MainEntity> QueryLoad()
         {
-            var entries = dbContext.MainEntities.Take(Limit).ToList();
-            return entries;
+            IQueryable<MainEntity> query = LoadRefs switch
+            {
+                0 => dbContext.MainEntities,
+                1 => dbContext.MainEntities
+                    .Include(x => x.Ref1),
+                2 => dbContext.MainEntities
+                    .Include(x => x.Ref1)
+                    .Include(x => x.Ref2),
+                3 => dbContext.MainEntities
+                    .Include(x => x.Ref1)
+                    .Include(x => x.Ref2)
+                    .Include(x => x.Ref3),
+                4 => dbContext.MainEntities
+                    .Include(x => x.Ref1)
+                    .Include(x => x.Ref2)
+                    .Include(x => x.Ref3)
+                    .Include(x => x.Ref4),
+                5 => dbContext.MainEntities
+                    .Include(x => x.Ref1)
+                    .Include(x => x.Ref2)
+                    .Include(x => x.Ref3)
+                    .Include(x => x.Ref4)
+                    .Include(x => x.Ref5),
+                6 => dbContext.MainEntities
+                    .Include(x => x.Ref1)
+                    .Include(x => x.Ref2)
+                    .Include(x => x.Ref3)
+                    .Include(x => x.Ref4)
+                    .Include(x => x.Ref5)
+                    .Include(x => x.BigRef),
+                _ => throw new ArgumentOutOfRangeException()
+            };
+            var splitQuery = SplitQueries ? query.AsSplitQuery() : query;
+            return splitQuery.Take(2).ToList();
         }
-        
-        [Benchmark]
-        public List<MainEntity> Refs0_Splitted()
-        {
-            var entries = dbContext.MainEntities.Take(Limit).AsSplitQuery().ToList();
-            return entries;
-        }
-        
-        [Benchmark]
-        public List<MainEntity> Refs1_Single()
-        {
-            var entries = dbContext.MainEntities
-                .Include(x => x.Ref1)
-                .Take(Limit).ToList();
-            return entries;
-        }
-        
-        [Benchmark]
-        public List<MainEntity> Refs1_Splitted()
-        {
-            var entries = dbContext.MainEntities
-                .Include(x => x.Ref1)
-                .Take(Limit).AsSplitQuery().ToList();
-            return entries;
-        }
-        
-        [Benchmark]
-        public List<MainEntity> Refs2_Single()
-        {
-            var entries = dbContext.MainEntities
-                .Include(x => x.Ref1)
-                .Include(x => x.Ref2)
-                .Take(Limit).ToList();
-            return entries;
-        }
-        
-        [Benchmark]
-        public List<MainEntity> Refs2_Splitted()
-        {
-            var entries = dbContext.MainEntities
-                .Include(x => x.Ref1)
-                .Include(x => x.Ref2)
-                .Take(Limit).AsSplitQuery().ToList();
-            return entries;
-        }
-        [Benchmark]
-        public List<MainEntity> Refs3_Single()
-        {
-            var entries = dbContext.MainEntities
-                .Include(x => x.Ref1)
-                .Include(x => x.Ref2)
-                .Include(x => x.Ref3)
-                .Take(Limit).ToList();
-            return entries;
-        }
-        
-        [Benchmark]
-        public List<MainEntity> Refs3_Splitted()
-        {
-            var entries = dbContext.MainEntities
-                .Include(x => x.Ref1)
-                .Include(x => x.Ref2)
-                .Include(x => x.Ref3)
-                .Take(Limit).AsSplitQuery().ToList();
-            return entries;
-        }
-        [Benchmark]
-        public List<MainEntity> Refs4_Single()
-        {
-            var entries = dbContext.MainEntities
-                .Include(x => x.Ref1)
-                .Include(x => x.Ref2)
-                .Include(x => x.Ref3)
-                .Include(x => x.Ref4)
-                .Take(Limit).ToList();
-            return entries;
-        }
-        
-        [Benchmark]
-        public List<MainEntity> Refs4_Splitted()
-        {
-            var entries = dbContext.MainEntities
-                .Include(x => x.Ref1)
-                .Include(x => x.Ref2)
-                .Include(x => x.Ref3)
-                .Include(x => x.Ref4)
-                .Take(Limit).AsSplitQuery().ToList();
-            return entries;
-        }
-        [Benchmark]
-        public List<MainEntity> Refs5_Single()
-        {
-            var entries = dbContext.MainEntities
-                .Include(x => x.Ref1)
-                .Include(x => x.Ref2)
-                .Include(x => x.Ref3)
-                .Include(x => x.Ref4)
-                .Include(x => x.Ref5)
-                .Take(Limit).ToList();
-            return entries;
-        }
-        
-        [Benchmark]
-        public List<MainEntity> Refs5_Splitted()
-        {
-            var entries = dbContext.MainEntities
-                .Include(x => x.Ref1)
-                .Include(x => x.Ref2)
-                .Include(x => x.Ref3)
-                .Include(x => x.Ref4)
-                .Include(x => x.Ref5)
-                .Take(Limit).AsSplitQuery().ToList();
-            return entries;
-        }
-        [Benchmark]
-        public List<MainEntity> Refs6WithBig_Single()
-        {
-            var entries = dbContext.MainEntities
-                .Include(x => x.Ref1)
-                .Include(x => x.Ref2)
-                .Include(x => x.Ref3)
-                .Include(x => x.Ref4)
-                .Include(x => x.Ref5)
-                .Include(x => x.BigRef)
-                .Take(Limit).ToList();
-            return entries;
-        }
-        
-        [Benchmark]
-        public List<MainEntity> Refs6WithBig_Splitted()
-        {
-            var entries = dbContext.MainEntities
-                .Include(x => x.Ref1)
-                .Include(x => x.Ref2)
-                .Include(x => x.Ref3)
-                .Include(x => x.Ref4)
-                .Include(x => x.Ref5)
-                .Include(x => x.BigRef)
-                .Take(Limit).AsSplitQuery().ToList();
-            return entries;
-        }
+
         [GlobalCleanup]
         public void Teardown()
         {

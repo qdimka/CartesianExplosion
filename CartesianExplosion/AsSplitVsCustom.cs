@@ -12,7 +12,7 @@ namespace CartesianExplosion
         private MyDataContext dbContext;
         
         
-        [Params(2,5,10)]
+        [Params(2,5,10,100)]
         public int ItemsInCollection { get; set; }
 
         [GlobalSetup]

@@ -78,6 +78,11 @@ namespace CartesianExplosion
         }
         
         public DbSet<MainEntity> MainEntities { get; set; }
+        public DbSet<RefEntity1> Ref1s { get; set; }
+        public DbSet<RefEntity2> Ref2s { get; set; }
+        public DbSet<RefEntity3> Ref3s { get; set; }
+        public DbSet<RefEntity4> Ref4s { get; set; }
+        public DbSet<RefEntity5> Ref5s { get; set; }
 
         private void SeedRef<T>(ModelBuilder modelBuilder, int cnt, int dataLen) where T : RefEntity, new()
         {

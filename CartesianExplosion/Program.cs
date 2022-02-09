@@ -9,7 +9,7 @@ namespace CartesianExplosion
     {
         static void Main(string[] args)
         {
-            Console.WriteLine($"Select benchmark 1 - {nameof(AsSplitBenchmark)}; 2 - {nameof(AsSplitVsCustom)}:");
+            Console.WriteLine($"Select benchmark 1 - {nameof(AsSplitBenchmark)}; 2 - {nameof(AsSplitVsCustom)}; 3 - {nameof(AsSplitVsAsNoTrackingWithIdentityResolution)}:");
             var userInput = Console.ReadLine();
             switch (userInput)
             {
@@ -18,6 +18,9 @@ namespace CartesianExplosion
                     break;
                 case "2":
                     _ = BenchmarkRunner.Run<AsSplitVsCustom>();
+                    break;
+                case "3":
+                    _ = BenchmarkRunner.Run<AsSplitVsAsNoTrackingWithIdentityResolution>();
                     break;
                 default:
                     Console.WriteLine("u loose");
